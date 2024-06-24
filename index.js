@@ -1,11 +1,12 @@
-const express = require("express");
-const http = require("http");
-const socketIo = require("socket.io");
-const cors = require("cors");
-const { ExpressPeerServer } = require("peer");
+import express, { static as expressStatic } from "express";
+import { createServer } from "http";
+import socketIo from "socket.io";
+import cors from "cors";
+import { ExpressPeerServer } from "peer";
+import { join } from "path";
 
 const app = express();
-const server = http.createServer(app);
+const server = createServer(app);
 const io = socketIo(server, {
   cors: {
     origin: "*",
@@ -18,26 +19,28 @@ const peerServer = ExpressPeerServer(server, {
 });
 
 app.use(cors());
+app.use(expressStatic(join(__dirname, 'public')));
 app.use("/peerjs", peerServer);
+
+app.get('*', (req, res) => {
+  return res.sendFile(join(__dirname, 'public', 'index.html'));
+});
 
 let users = [];
 
 io.on("connection", (socket) => {
-  console.log("New user connected!");
 
-  // Handle joining room and storing user info
   socket.on("join-room", (userId, userName) => {
     console.log(`User ${userName} joined the room`);
 
     const roomId = "52f524a6-c93e-4832-bedd-7925fd76dc55";
-    const user = { id: userId, name: userName, sid: socket.id }; // Store socket id
+    const user = { id: userId, name: userName, sid: socket.id };
     users.push(user);
 
     socket.join(roomId);
     io.to(roomId).emit("update-user-list", users);
     socket.broadcast.to(roomId).emit("user-connected", user);
 
-    // Handle disconnection
     socket.on("disconnect", () => {
       console.log(`User ${userName} disconnected!`);
       users = users.filter((u) => u.id !== userId);
@@ -45,13 +48,11 @@ io.on("connection", (socket) => {
       socket.broadcast.to(roomId).emit("user-disconnected", userId);
     });
 
-    // Handle request for updated user list
     socket.on("request-user-list", () => {
       io.to(socket.id).emit("update-user-list", users);
     });
   });
 
-  // Additional event listeners can be added here as needed
 });
 
 const PORT = process.env.PORT || 8000;
