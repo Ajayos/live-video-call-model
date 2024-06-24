@@ -1,16 +1,24 @@
 import express, { static as expressStatic } from "express";
-import { createServer } from "http";
+import { createServer } from "https";
 import { Server as SocketIOServer } from "socket.io";
 import cors from "cors";
 import { ExpressPeerServer } from "peer";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import fs from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-const server = createServer(app);
+
+const options = {
+  key: fs.readFileSync("./server.key"),
+  cert: fs.readFileSync("./server.crt"),
+};
+
+const server = createServer(options, app);
+
 const io = new SocketIOServer(server, {
   cors: {
     origin: "*",
