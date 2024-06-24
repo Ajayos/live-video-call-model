@@ -1,13 +1,17 @@
 import express, { static as expressStatic } from "express";
 import { createServer } from "http";
-import socketIo from "socket.io";
+import { Server as SocketIOServer } from "socket.io";
 import cors from "cors";
 import { ExpressPeerServer } from "peer";
-import { join } from "path";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 const server = createServer(app);
-const io = socketIo(server, {
+const io = new SocketIOServer(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
@@ -19,17 +23,16 @@ const peerServer = ExpressPeerServer(server, {
 });
 
 app.use(cors());
-app.use(expressStatic(join(__dirname, 'public')));
+app.use(expressStatic(join(__dirname, "public")));
 app.use("/peerjs", peerServer);
 
-app.get('*', (req, res) => {
-  return res.sendFile(join(__dirname, 'public', 'index.html'));
+app.get("*", (req, res) => {
+  return res.sendFile(join(__dirname, "public", "index.html"));
 });
 
 let users = [];
 
 io.on("connection", (socket) => {
-
   socket.on("join-room", (userId, userName) => {
     console.log(`User ${userName} joined the room`);
 
@@ -52,7 +55,6 @@ io.on("connection", (socket) => {
       io.to(socket.id).emit("update-user-list", users);
     });
   });
-
 });
 
 const PORT = process.env.PORT || 8000;

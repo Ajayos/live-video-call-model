@@ -75,8 +75,6 @@ function VoiceWindow({ userId, name }) {
     });
 
     peer.on("call", (call) => {
-      console.log(call)
-      alert(`Incoming call from ${call.peer}`);
       setCaller(call.peer);
       setIncomingCallDialogOpen(true);
 
@@ -118,10 +116,7 @@ function VoiceWindow({ userId, name }) {
           const call = peerInstance.current.call(selectedUser.id, stream, {
             metadata: { type: "audio" },
           });
-          console.log(call)
-      
           setCurrentCall(call);
-          // call.answer(stream);
 
           call.on("stream", (remoteStream) => {
             remoteVideoRef.current.srcObject = remoteStream;
