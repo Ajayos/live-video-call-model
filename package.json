@@ -1,0 +1,26 @@
+{
+  "name": "audio-call",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ajayos/live-video-call-model.git"
+  },
+  "author": "Ajay o s",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ajayos/live-video-call-model/issues"
+  },
+  "homepage": "https://github.com/Ajayos/live-video-call-model#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "peer": "^1.0.2",
+    "socket.io": "^4.7.5"
+  }
+}
